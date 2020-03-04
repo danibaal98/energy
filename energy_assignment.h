@@ -1,7 +1,5 @@
 #ifndef assignmentClass_h
-#define
-
-#include <iostream>
+#define assignmentClass_h
 
 #define CAPACITY     2500
 #define BATTERIES    2
@@ -54,3 +52,5 @@ class assignmentClass
 
 };
 extern assignmentClass assignment;
+
+#endif
