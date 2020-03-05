@@ -28,6 +28,9 @@
 #define ENERGY_IDLE_TASK 2
 #define TUPLA            3
 
+#define TIME_SLOTS 288 //in seconds
+#define SLOTS (3600 * 24 / TIME_SLOTS)
+
 class assignmentClass
 {
  public:
