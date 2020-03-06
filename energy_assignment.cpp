@@ -18,6 +18,72 @@ int STD_HOURS[MONTHS] = {8, 8, 8, 10, 11, 13, 13, 13, 12, 9, 8, 8};
 int MIN_HOUR[MONTHS] = {8, 8, 8, 8, 7, 7, 7, 7, 7, 8, 8, 8};
 int MAX_HOUR[MONTHS] = {16, 16, 16, 18, 18, 20, 20, 20, 19, 17, 16, 16};
 
+//cost of all the plans
+float cost_of_plan[NUMBER_OF_PLANS_1];
+float vector_efficiency[NUMBER_OF_PLANS_1];
+int ddMMyyhhmmss[6];
+int plans[NUMBER_OF_PLANS_1];
+int assignment[SLOTS];
+double battery_at_slots[SLOTS + 1];
+ 
+assignmentClass::assignmentClass(void)
+{
+    battery_at_slots[0] = CAPACITY - 500;
+
+    cost_of_plan[0] = compute_cost_scheduling_plan(MATRIX_1_A, NUMBER_OF_TASKS_1_A);
+    cost_of_plan[1] = compute_cost_scheduling_plan(MATRIX_1_B, NUMBER_OF_TASKS_1_B);
+    cost_of_plan[2] = compute_cost_scheduling_plan(MATRIX_1_C, NUMBER_OF_TASKS_1_C);
+    cost_of_plan[3] = compute_cost_scheduling_plan(MATRIX_1_D, NUMBER_OF_TASKS_1_D);
+    cost_of_plan[4] = compute_cost_scheduling_plan(MATRIX_1_E, NUMBER_OF_TASKS_1_E);
+    cost_of_plan[5] = compute_cost_scheduling_plan(MATRIX_1_PLAN_EMERGENCIA, NUMBER_OF_TASKS_PLAN_EMERGENCIA);
+}
+
+void assignmentClass::assign_plan(void)
+{
+    int hour = 0;
+    compute_efficiency(QoS, cost_of_plan, vector_efficiency, NUMBER_OF_PLANS_1);
+    order_plans_by_efficiency(vector_efficiency, plans, NUMBER_OF_PLANS_1);
+
+    for (int i = 0; i < SLOTS; i++)
+        assignment[i] = plans[0];
+
+    compute_cost_assignment(plans[0], cost_of_plan, ddMMyyhhmmss, battery_at_slots, &hour, 1, ddMMyyhhmmss[1]);
+
+    int optimal = 0, admisible = 0, n = NUMBER_OF_PLANS_1;
+
+    while ((!optimal) && (!admisible))
+    {
+        if (battery_at_slots[SLOTS] >= battery_at_slots[0])
+        {
+            if (battery_at_slots[SLOTS] == battery_at_slots[0])
+            {
+                optimal = 1;
+                break;
+            }
+
+            n = remove_plan_quality(plans[0], vector_efficiency, plans, n);
+            if (n == 0)
+            {
+                optimal = 1;
+                break;
+            }
+            upgrade(plans[0], assignment, battery_at_slots, cost_of_plan, QoS, ddMMyyhhmmss[1]);
+        }
+        else 
+        {
+            n = remove_plan_cost(plans[0], cost_of_plan, vector_efficiency, plans, n);
+            if (n == 0)
+            {
+                admisible = 1;
+                break;
+            }
+            downgrade(plans[0], assignment, battery_at_slots, cost_of_plan, QoS, ddMMyyhhmmss[1]);
+        }
+    }
+    
+
+}
+
 int compute_time_idle_task(int matrix[][TUPLA], int n)
 {
     int time_idle_task = 0;
@@ -77,6 +143,29 @@ void assignmentClass::order_plans_by_efficiency(float *vector_efficiency, int *p
         }
         plans[i] = change;
     }
+}
+
+void assignmentClass::get_time_from_seconds(int seconds, int *ddMMyyhhmmss)
+{
+    int resto, resto1;
+
+	resto = (ddMMyyhhmmss[5] + seconds) / 60;
+	ddMMyyhhmmss[5] = (ddMMyyhhmmss[5] + seconds) % 60;
+
+	resto1 = (resto + ddMMyyhhmmss[4]) / 60;
+	ddMMyyhhmmss[4] = (resto + ddMMyyhhmmss[4]) % 60;
+
+	resto = (resto1 + ddMMyyhhmmss[3]) / 60;
+	ddMMyyhhmmss[3] = (resto1 + ddMMyyhhmmss[3]) % 24;
+
+	resto1 = (resto + ddMMyyhhmmss[0]) / 30;
+	ddMMyyhhmmss[0] = (resto + ddMMyyhhmmss[0]) % 30;
+
+	resto = (resto1 + ddMMyyhhmmss[1]) / 12;
+	ddMMyyhhmmss[1] = (resto1 + ddMMyyhhmmss[1]) % 12;
+
+	if (resto > 1)
+		ddMMyyhhmmss[2]++;
 }
 
 void assignmentClass::get_time_from_seconds(int seconds, int *ddMMyyhhmmss)

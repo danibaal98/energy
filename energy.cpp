@@ -134,6 +134,11 @@ int main()
 
 		hour = 0;
 
+		for (i = 0; i < SLOTS; i++)
+		{
+			assignment[i] = plans[0];
+		}
+
 		compute_cost_assignment(plans[0], cost_of_plan, ddMMyyhhmmss, battery_at_slots, &hour, 1, j);
 
 		optimal = 0;
