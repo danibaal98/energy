@@ -156,15 +156,12 @@ int main()
 				}
 
 				n = remove_plan_quality(plans[0], vector_efficiency, plans, n);
-				for (i = 0; i < n; i++)
-					printf("111asigno plan=%d con QoS=%f y efficiency=%f\n", i, QoS[plans[i]], vector_efficiency[i]);
 				
 				if (n == 0)
 				{
 					optimal = 1;
 					break;
 				}
-				printf("UPGRADE: Nuevo plan=%d con QoS=%f y efficiency=%f y cost=%f\n", plans[0], QoS[plans[0]], vector_efficiency[0], cost_of_plan[plans[0]]);
 				upgrade(plans[0], assignment, battery_at_slots, cost_of_plan, QoS, j);
 			}
 			else
