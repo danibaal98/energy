@@ -45,14 +45,14 @@ class assignmentClass
     int remove_plan_quality(int plan, float *vector_efficiency, int *plans, int n);
     int remove_plan_cost(int plan, float *cost_of_plan, float *vector_efficiency, int *plans, int n);
     double rectifier(double a, double b);
-    void upgrade(int plan, int *assignment, double *battery_at_slots, float *cost_of_plan, float *QoS, int month);
-    void downgrade(int plan, int *assignment, double *battery_at_slots, float *cost_of_plan, float *QoS, int month);
+    void upgrade(int plan, int *assignments, double *battery_at_slots, float *cost_of_plan, float *QoS, int month);
+    void downgrade(int plan, int *assignments, double *battery_at_slots, float *cost_of_plan, float *QoS, int month);
     int look_for_slot(int time);
     void look_for_time(int slot, int *ddMMyyhhmmss);
     void compute_cost_assignment(int plan, float *cost_of_plan, int *ddMMyyhhmmss, double *battery_at_slots, int *hour, int init, int month);
-    void recompute_battery_level(int plan, int *assignment, double *battery_at_slots, float *cost_of_plan, int s, int hour, float *QoS, int month, int optimization);
-    void compute_qos_assignment(int *assignment, float *QoS, int month);
-    int reoptimization(int *assignment, int x, double *battery_at_slots, int month, float *cost_of_plan, float *QoS, int *plans);
+    void recompute_battery_level(int plan, int *assignments, double *battery_at_slots, float *cost_of_plan, int s, int hour, float *QoS, int month, int optimization);
+    void compute_qos_assignment(int *assignments, float *QoS, int month);
+    int reoptimization(int *assignments, int x, double *battery_at_slots, int month, float *cost_of_plan, float *QoS, int *plans);
 
 };
 extern assignmentClass assignment;

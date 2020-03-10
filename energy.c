@@ -388,6 +388,8 @@ void compute_cost_assignment(int plan, float *cost_of_plan, int *ddMMyyhhmmss, d
 		ep_slot = 0;
 		ep_slot_remaining = 0;
 	}
+	//fprintf(fs, "Empiezo en compute\n");
+
 	for (i = init; i <= SLOTS; i++)
 	{
 		//in every month we compute the irradiance in the month and we distribute in
@@ -474,6 +476,9 @@ void recompute_battery_level(int plan, int *assignment, double *battery_at_slots
 	sprintf(filename, "%s-%d.csv", INITIAL, month);
 	fs = fopen(filename, "a");
 	// compute the production at this slot
+	
+	//fprintf(fs, "Empiezo en la recompute\n");
+
 	for (i = 1; i <= SLOTS; i++)
 	{
 
