@@ -28,7 +28,8 @@ double battery_at_slots[SLOTS + 1];
  
 assignmentClass::assignmentClass(void)
 {
-    battery_at_slots[0] = CAPACITY - 500;
+    //battery_at_slots[0] = CAPACITY - 500;
+	battery_at_slots[0] = 2000;
 
     cost_of_plan[0] = compute_cost_scheduling_plan(MATRIX_1_A, NUMBER_OF_TASKS_1_A);
     cost_of_plan[1] = compute_cost_scheduling_plan(MATRIX_1_B, NUMBER_OF_TASKS_1_B);
@@ -38,7 +39,7 @@ assignmentClass::assignmentClass(void)
     cost_of_plan[5] = compute_cost_scheduling_plan(MATRIX_1_PLAN_EMERGENCIA, NUMBER_OF_TASKS_PLAN_EMERGENCIA);
 
     ddMMyyhhmmss[0] = 1;
-    ddMMyyhhmmss[1] = 2;
+    ddMMyyhhmmss[1] = 1;
     ddMMyyhhmmss[2] = 2012;
     ddMMyyhhmmss[3] = 0;
     ddMMyyhhmmss[4] = 0;
@@ -65,6 +66,7 @@ int* assignmentClass::assign_plan(void)
         {
             if (battery_at_slots[SLOTS] == battery_at_slots[0])
             {
+				std::cout << "Peto aqui 1" << std::endl;
                 optimal = 1;
                 break;
             }
@@ -72,9 +74,11 @@ int* assignmentClass::assign_plan(void)
             n = remove_plan_quality(plans[0], vector_efficiency, plans, n);
             if (n == 0)
             {
+				std::cout << "Peto aqui 2" << std::endl;
                 optimal = 1;
                 break;
             }
+			std::cout << "Hago upgrade" << std::endl;
             upgrade(plans[0], assignments, battery_at_slots, cost_of_plan, QoS, ddMMyyhhmmss[1] - 1);
         }
         else 
@@ -82,9 +86,11 @@ int* assignmentClass::assign_plan(void)
             n = remove_plan_cost(plans[0], cost_of_plan, vector_efficiency, plans, n);
             if (n == 0)
             {
+				std::cout << "Peto aqui 3" << std::endl;
                 admisible = 1;
                 break;
             }
+			std::cout << "Hago downgrade" << std::endl;
             downgrade(plans[0], assignments, battery_at_slots, cost_of_plan, QoS, ddMMyyhhmmss[1] - 1);
         }
     }
@@ -332,8 +338,8 @@ void assignmentClass::compute_cost_assignment(int plan, float *cost_of_plan, int
 		fprintf(fs, "%f\t", consumption);
 		fprintf(fs, "%f\n", ep_slot);
 		// register data to display
-		printf("SLOT=%d\tSCHEDULING PLAN=%d\tQoS[P]=%f\tB[%d]=%f\tconsumption=%f\testimation=%f\t", i, plan, QoS[plan], i, battery_at_slots[i], consumption, ep_slot);
-		printf("TIME=%d-%d-%d:%d:%d:%d\n", ddMMyyhhmmss[0], ddMMyyhhmmss[1], ddMMyyhhmmss[2], ddMMyyhhmmss[3], ddMMyyhhmmss[4], ddMMyyhhmmss[5]);
+		// printf("SLOT=%d\tSCHEDULING PLAN=%d\tQoS[P]=%f\tB[%d]=%f\tconsumption=%f\testimation=%f\t", i, plan, QoS[plan], i, battery_at_slots[i], consumption, ep_slot);
+		// printf("TIME=%d-%d-%d:%d:%d:%d\n", ddMMyyhhmmss[0], ddMMyyhhmmss[1], ddMMyyhhmmss[2], ddMMyyhhmmss[3], ddMMyyhhmmss[4], ddMMyyhhmmss[5]);
 		get_time_from_seconds(TIME_SLOTS, ddMMyyhhmmss);
 	}
 	fclose(fs);
@@ -459,13 +465,14 @@ void assignmentClass::downgrade(int plan, int *assignments, double *battery_at_s
 	int s;
 	int old;
 	s = look_for_slot(SUNSET_SLOT);
+	std::cout << "En downgrade" << std::endl;
 	while (((battery_at_slots[SLOTS] - battery_at_slots[0]) < 0) && (i < SLOTS))
 	{
 		old = assignments[s - 1];
 		assignments[s - 1] = plan;
 		recompute_battery_level(plan, assignments, battery_at_slots, cost_of_plan, s, SUNSET_SLOT, QoS, month, 0);
-		printf("DOWNGRADE: due to change in the plan of slot=%d from %d to %d\n", s, old, plan);
-		printf("DOWNGRADE: Battery_at_slot[SLOTS]=%f\n", battery_at_slots[SLOTS]);
+		// printf("DOWNGRADE: due to change in the plan of slot=%d from %d to %d\n", s, old, plan);
+		// printf("DOWNGRADE: Battery_at_slot[SLOTS]=%f\n", battery_at_slots[SLOTS]);
 		s = (s % SLOTS) + 1;
 		i++;
 	}

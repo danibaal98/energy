@@ -109,7 +109,7 @@ int main()
 	r2 = look_for_slot(SUNSET_SLOT);
     x = rand() % (r2 - r1 + 1) + r1; // La produccion varia entre SUNRISE_SLOT y SUNSET_SLOT de otra manera no tiene efecto
 
-    for (j = 0; j < MONTHS; j++)
+    for (j = 0; j < 1; j++)
     {
         ddMMyyhhmmss[0] = 1;
 		ddMMyyhhmmss[1] = j + 1;
@@ -191,11 +191,11 @@ int main()
 
 		compute_efficiency(QoS, cost_of_plan, vector_efficiency, NUMBER_OF_PLANS_1);
 		order_plans_by_efficiency(vector_efficiency, plans, NUMBER_OF_PLANS_1);
-		if (reoptimization(assignment, x, battery_at_slots, j, cost_of_plan, QoS, plans) == -1)
+		/*if (reoptimization(assignment, x, battery_at_slots, j, cost_of_plan, QoS, plans) == -1)
 		{
 			printf("The reoptimizations is not possible: Not admissible solution\n");
 			sleep(1);
-		}
+		}*/
     }
 	return 0;
 }
@@ -562,6 +562,7 @@ void downgrade(int plan, int *assignment, double *battery_at_slots, float *cost_
 	int s;
 	int old;
 	s = look_for_slot(SUNSET_SLOT);
+	printf("EN DOWNGRADE PARA EL MES %d\n", month);
 	while (((battery_at_slots[SLOTS] - battery_at_slots[0]) < 0) && (i < SLOTS))
 	{
 		old = assignment[s - 1];
