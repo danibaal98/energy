@@ -38,16 +38,23 @@ assignmentClass::assignmentClass(void)
     cost_of_plan[4] = compute_cost_scheduling_plan(MATRIX_1_E, NUMBER_OF_TASKS_1_E);
     cost_of_plan[5] = compute_cost_scheduling_plan(MATRIX_1_PLAN_EMERGENCIA, NUMBER_OF_TASKS_PLAN_EMERGENCIA);
 
-    ddMMyyhhmmss[0] = 1;
-    ddMMyyhhmmss[1] = 12;
+    // ddMMyyhhmmss[0] = 1;
+    // ddMMyyhhmmss[1] = 1;
+    // ddMMyyhhmmss[2] = 2012;
+    // ddMMyyhhmmss[3] = 0;
+    // ddMMyyhhmmss[4] = 0;
+    // ddMMyyhhmmss[5] = 0;
+}
+
+int* assignmentClass::assign_plan(int month)
+{
+	ddMMyyhhmmss[0] = 1;
+    ddMMyyhhmmss[1] = month;
     ddMMyyhhmmss[2] = 2012;
     ddMMyyhhmmss[3] = 0;
     ddMMyyhhmmss[4] = 0;
     ddMMyyhhmmss[5] = 0;
-}
-
-int* assignmentClass::assign_plan(void)
-{
+	
     int hour = 0;
 	int x, r1, r2;
     compute_efficiency(QoS, cost_of_plan, vector_efficiency, NUMBER_OF_PLANS_1);
@@ -76,7 +83,6 @@ int* assignmentClass::assign_plan(void)
         {
             if (battery_at_slots[SLOTS] == battery_at_slots[0])
             {
-				std::cout << "Peto aqui 1" << std::endl;
                 optimal = 1;
                 break;
             }
@@ -84,7 +90,6 @@ int* assignmentClass::assign_plan(void)
             n = remove_plan_quality(plans[0], vector_efficiency, plans, n);
             if (n == 0)
             {
-				std::cout << "Peto aqui 2" << std::endl;
                 optimal = 1;
                 break;
             }
@@ -96,7 +101,6 @@ int* assignmentClass::assign_plan(void)
             n = remove_plan_cost(plans[0], cost_of_plan, vector_efficiency, plans, n);
             if (n == 0)
             {
-				std::cout << "Peto aqui 3" << std::endl;
                 admisible = 1;
                 break;
             }
@@ -111,9 +115,8 @@ int* assignmentClass::assign_plan(void)
 	order_plans_by_efficiency(vector_efficiency, plans, NUMBER_OF_PLANS_1);
 
 	if (reoptimization(assignments, x, battery_at_slots, ddMMyyhhmmss[1] - 1, cost_of_plan, QoS, plans) == -1)
-	{
-		// not admissible solution
-	}
+		std::cout << "Not admissible solution" << std::endl;
+	
     return assignments;
 }
 
@@ -139,8 +142,6 @@ float assignmentClass::compute_cost_scheduling_plan(int matrix[][TUPLA], int n)
 
     for (i = 0; i < n; i++)
     {
-        //std::cout << "olaaa";
-        //printf("Tarea %d=(%d, %d, %d\n", i, matrix[i][0], matrix[i][1], matrix[i][2]);
         cost_other_tasks += ((float)matrix[i][2] / (float)matrix[i][1]);
         cost_idle_task += ((float)matrix[i][0] / (float)matrix[i][1]);
     }
@@ -239,7 +240,6 @@ int assignmentClass::remove_plan_cost(int plan, float *cost_of_plan, float *vect
     int i, j = 0;
     float vector_efficiency_aux[NUMBER_OF_PLANS_1];
 
-    //print
     for (i = 0; i < n; i++)
     {
         if (cost_of_plan[i] < cost_of_plan[plan])
@@ -298,6 +298,7 @@ void assignmentClass::compute_cost_assignment(int plan, float *cost_of_plan, int
 	FILE *fs;
 	sprintf(filename, "%s-%d.csv", "results/initial_assignment", month);
 	fs = fopen(filename, "w");
+	fprintf(fs, "slot,date,plan,QoS,battery,consumption,ep_slot\n");
 
 	std::cout << "El mes es " << month << std::endl;
 
@@ -317,7 +318,6 @@ void assignmentClass::compute_cost_assignment(int plan, float *cost_of_plan, int
 		ep_slot = 0;
 		ep_slot_remaining = 0;
 	}
-	//fprintf(fs, "Empiezo en compute\n");
 
 	for (i = init; i <= SLOTS; i++)
 	{
@@ -353,18 +353,15 @@ void assignmentClass::compute_cost_assignment(int plan, float *cost_of_plan, int
 			battery_at_slots[i] = battery_level;
 
 		// register data to file
-		fprintf(fs, "%d\t", i);
-		fprintf(fs, "%d-%d-%d:%d:%d:%d\t", ddMMyyhhmmss[0], ddMMyyhhmmss[1], ddMMyyhhmmss[2], ddMMyyhhmmss[3], ddMMyyhhmmss[4], ddMMyyhhmmss[5]);
-		fprintf(fs, "%d\t", plan);
-		fprintf(fs, "%f\t", QoS[plan]);
-		fprintf(fs, "%f\t", battery_at_slots[i]);
-		fprintf(fs, "%f\t", consumption);
+		fprintf(fs, "%d,", i);
+		fprintf(fs, "%d-%d-%d:%d:%d:%d,", ddMMyyhhmmss[0], ddMMyyhhmmss[1], ddMMyyhhmmss[2], ddMMyyhhmmss[3], ddMMyyhhmmss[4], ddMMyyhhmmss[5]);
+		fprintf(fs, "%d,", plan);
+		fprintf(fs, "%f,", QoS[plan]);
+		fprintf(fs, "%f,", battery_at_slots[i]);
+		fprintf(fs, "%f,", consumption);
 		fprintf(fs, "%f\n", ep_slot);
-		// register data to display
-		// printf("SLOT=%d\tSCHEDULING PLAN=%d\tQoS[P]=%f\tB[%d]=%f\tconsumption=%f\testimation=%f\t", i, plan, QoS[plan], i, battery_at_slots[i], consumption, ep_slot);
-		// printf("TIME=%d-%d-%d:%d:%d:%d\n", ddMMyyhhmmss[0], ddMMyyhhmmss[1], ddMMyyhhmmss[2], ddMMyyhhmmss[3], ddMMyyhhmmss[4], ddMMyyhhmmss[5]);
+		
 		get_time_from_seconds(TIME_SLOTS, ddMMyyhhmmss);
-		//if (ddMMyyhhmmss[1] == 0) ddMMyyhhmmss[1] = 12;
 	}
 	fclose(fs);
 }
@@ -379,8 +376,8 @@ void assignmentClass::recompute_battery_level(int plan, int *assignments, double
 	float EP = 0.0;
 	float K = D[month];
 	float P = STD_HOURS[month] / K;
-	char filename[256];
-	FILE *fs;
+	char filename_assignment[256], filename_repotimization[256];
+	FILE *fs, *fr;
 	std::cout << "RE el mes es " << month << std::endl;
 	// debe estar la hora a 0!!
 	int new_date[6] = {1, month + 1, 2012, 0, 0, 0};
@@ -402,12 +399,13 @@ void assignmentClass::recompute_battery_level(int plan, int *assignments, double
 		ep_slot_remaining = 0;
 	}
 
-	sprintf(filename, "%s-%d.csv", "results/initial_assignment", month);
-	fs = fopen(filename, "a");
+	sprintf(filename_assignment, "%s-%d.csv", "results/initial_assignment", month);
+	fs = fopen(filename_assignment, "a");
+
+	sprintf(filename_repotimization, "%s-%d-%f.csv", "results/reoptimization", month, COEFFICIENT);
+	fr = fopen(filename_repotimization, "a");
 	// compute the production at this slot
 	
-	//fprintf(fs, "Empiezo en la recompute\n");
-
 	for (i = 1; i <= SLOTS; i++)
 	{
 
@@ -446,18 +444,31 @@ void assignmentClass::recompute_battery_level(int plan, int *assignments, double
 				battery_at_slots[i] = battery_level;
 
 			// register data to file
+			if (optimization)
+			{
+				std::cout << i << std::endl;
+				fprintf(fr, "%d,", i);
+				fprintf(fr, "%f,", ep_slot);
+				if (ep_slot > consumption)
+					fprintf(fr, "%s\n", "superhabit");
+				else
+					fprintf(fr, "%s\n", "deficit");
+			}
 		}
-		fprintf(fs, "%d\t", i);
-		fprintf(fs, "%d-%d-%d:%d:%d:%d\t", new_date[0], new_date[1], new_date[2], new_date[3], new_date[4], new_date[5]);
-		fprintf(fs, "%d\t", assignments[i - 1]);
-		fprintf(fs, "%f\t", QoS[assignments[i - 1]]);
-		fprintf(fs, "%f\t", battery_at_slots[i]);
-		fprintf(fs, "%f\t", consumption);
+
+		fprintf(fs, "%d,", i);
+		fprintf(fs, "%d-%d-%d:%d:%d:%d,", new_date[0], new_date[1], new_date[2], new_date[3], new_date[4], new_date[5]);
+		fprintf(fs, "%d,", assignments[i - 1]);
+		fprintf(fs, "%f,", QoS[assignments[i - 1]]);
+		fprintf(fs, "%f,", battery_at_slots[i]);
+		fprintf(fs, "%f,", consumption);
 		fprintf(fs, "%f\n", ep_slot);
+
+		
 		get_time_from_seconds(TIME_SLOTS, new_date);
-		//if (ddMMyyhhmmss[1] == 0) ddMMyyhhmmss[1] = 12;
 	}
 	fclose(fs);
+	fclose(fr);
 }
 
 void assignmentClass::upgrade(int plan, int *assignments, double *battery_at_slots, float *cost_of_plan, float *QoS, int month)
@@ -478,7 +489,6 @@ void assignmentClass::upgrade(int plan, int *assignments, double *battery_at_slo
 		consumption_old_plan = (cost_of_plan[old] / (60 * 60)) * Vld * TIME_SLOTS / (VOLTAGE * BATTERIES);
 		assignments[s - 1] = plan;
 		recompute_battery_level(plan, assignments, battery_at_slots, cost_of_plan, s, SUNRISE_SLOT, QoS, month, 0);
-		//printf("UPGRADE: due to change in the plan of slot=%d from %d to %d\n", s, old, plan);
 		s = (s % SLOTS) + 1;
 		i++;
 	}
@@ -490,14 +500,11 @@ void assignmentClass::downgrade(int plan, int *assignments, double *battery_at_s
 	int s;
 	int old;
 	s = look_for_slot(SUNSET_SLOT);
-	std::cout << "En downgrade" << std::endl;
 	while (((battery_at_slots[SLOTS] - battery_at_slots[0]) < 0) && (i < SLOTS))
 	{
 		old = assignments[s - 1];
 		assignments[s - 1] = plan;
 		recompute_battery_level(plan, assignments, battery_at_slots, cost_of_plan, s, SUNSET_SLOT, QoS, month, 0);
-		// printf("DOWNGRADE: due to change in the plan of slot=%d from %d to %d\n", s, old, plan);
-		// printf("DOWNGRADE: Battery_at_slot[SLOTS]=%f\n", battery_at_slots[SLOTS]);
 		s = (s % SLOTS) + 1;
 		i++;
 	}
@@ -511,6 +518,7 @@ void assignmentClass::compute_qos_assignment(int *assignments, float *QoS, int m
     for (i = 0; i < SLOTS; i++)
         qos_assignment += QoS[assignments[i]];
 }
+
 int assignmentClass::reoptimization(int *assignments, int x, double *battery_at_slots, int month, float *cost_of_plan, float *QoS, int *plans)
 {
 	int i = 0, s, plan, plan_old, j, k;
@@ -523,6 +531,8 @@ int assignmentClass::reoptimization(int *assignments, int x, double *battery_at_
 	FILE *fr;
 	sprintf(filename, "%s-%d-%f.csv", "results/reoptimization", month, COEFFICIENT);
 	fr = fopen(filename, "w");
+	fprintf(fr, "slot,ep_slot,variation\n");
+	fclose(fr);
 
 	for (i = 0; i < SLOTS; i++)
 		assignment_new[i] = assignments[i];
@@ -530,6 +540,7 @@ int assignmentClass::reoptimization(int *assignments, int x, double *battery_at_
 	look_for_time(x, ddMMyyhhmmss);
 	recompute_battery_level(0, assignments, battery_at_slots, cost_of_plan, x + 1, ddMMyyhhmmss[3], QoS, month, 1);
 	printf("after modifying the production at slot=%d battery_at_slots[SLOTS]=%f\t\n", x, battery_at_slots[SLOTS]);
+
 	if (battery_at_slots[SLOTS] >= (battery_at_slots[0] + EPSILON))
 	{
 		replaced = 1;
@@ -547,24 +558,20 @@ int assignmentClass::reoptimization(int *assignments, int x, double *battery_at_
 		{
 			replaced = 0;
 			s = x + 1;
-			// print
 
 			while (s <= SLOTS)
 			{
 				plan_old = assignments[s - 1];
 				consumption_old = (cost_of_plan[plan_old] / (60 * 60)) * Vld * TIME_SLOTS / (VOLTAGE * BATTERIES);
 				consumption_new = (cost_of_plan[k] / (60 * 60)) * Vld * TIME_SLOTS / (VOLTAGE * BATTERIES);
-				// printfs
+				
 				if ((k < NUMBER_OF_PLANS_1 - 1) && (k >= 0) && ((battery_at_slots[SLOTS] - battery_at_slots[0]) >= (consumption_new - consumption_old)))
 				{
 					assignment_new[s - 1] = k;
 					recompute_battery_level(k, assignment_new, battery_at_slots, cost_of_plan, s, ddMMyyhhmmss[3], QoS, month, 1);
-					// printfs
 					replaced = 1;
 					get_time_from_seconds(TIME_SLOTS, ddMMyyhhmmss);
 				}
-				else
-					printf("\n");
 				s++;
 			}
 			j++;
@@ -594,17 +601,13 @@ int assignmentClass::reoptimization(int *assignments, int x, double *battery_at_
 			replaced = 0;
 			while (s <= SLOTS)
 			{
-				// printfs
 				if((k >= 1) && (battery_at_slots[SLOTS] < battery_at_slots[0]))
 				{
 					assignment_new[s - 1] = k;
 					recompute_battery_level(k, assignment_new, battery_at_slots, cost_of_plan, s, ddMMyyhhmmss[3], QoS, month, 1);
-					// printfs
 					get_time_from_seconds(TIME_SLOTS, ddMMyyhhmmss);
 					replaced = 1;
 				}
-				else
-					printf("\n");
 				s++;
 			}
 			plan_old = k;
@@ -615,20 +618,12 @@ int assignmentClass::reoptimization(int *assignments, int x, double *battery_at_
 				k = plans[j];
 		}
 	}
-	//fprintfs
-	for (i = 1; i <= SLOTS; i++)
-	{
-		fprintf(fr, "%d\t", i);
-		fprintf(fr, "%d\t", assignments[i - 1]);
-		fprintf(fr, "%f\t", QoS[assignments[i - 1]]);
-		fprintf(fr, "%d\t", assignment_new[i - 1]);
-		fprintf(fr, "%f\t", QoS[assignment_new[i - 1]]);
-		fprintf(fr, "%f\n", battery_at_slots[i]);
-	}
-	fclose(fr);
+
 	for (i = 0; i < SLOTS; i++)
 		assignments[i] = assignment_new[i];
+
 	if (battery_at_slots[SLOTS] < battery_at_slots[0])
 		return -1;
+
 	return 0;
 }

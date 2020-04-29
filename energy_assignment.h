@@ -36,7 +36,7 @@ class assignmentClass
  public:
     assignmentClass(void);
 
-    int* assign_plan(void);
+    int* assign_plan(int month);
     int compute_time_idle_task(int matrix[][TUPLA], int n);
     float compute_cost_scheduling_plan(int matrix[][TUPLA], int n);
     void compute_efficiency(float *qos, float *cost_of_plan, float *vector_efficiency, int n);

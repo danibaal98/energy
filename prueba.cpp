@@ -5,6 +5,7 @@
 int main()
 {
     assignmentClass assignments = assignmentClass();
-    int *plans = assignments.assign_plan();
+    for (int i = 1; i <= 12; i++)
+        int *plans = assignments.assign_plan(i);
     //return 0;
 }
