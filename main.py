@@ -4,7 +4,7 @@ import csv
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-path = "results/initial_assignment-0.csv"
+path = "results/initial_assignment-2.csv"
 file = open(path, newline='')
 reader = csv.reader(file)
 
@@ -22,21 +22,25 @@ for row in reader:
 
     data.append([slot, date, plan, QoS, battery, consumption, ep_slot])
 
-# print(data[0])
-
-# battery_values = []
-
-# for d in data:
-#     battery_values.append(d[4])
-
-# battery_values = battery_values[-300:]
-# plt.plot(list(range(1, 301)), battery_values)
-# plt.show()
+battery_values = []
 plan_values = []
 
 for d in data:
     plan_values.append(d[2])
+    battery_values.append(d[4])
 
+battery_values = battery_values[-300:]
 plan_values = plan_values[-300:]
-plt.plot(list(range(1, 301)), plan_values, 'ro')
+
+plt.figure()
+plt.subplot(211)
+plt.plot(list(range(1, 301)), battery_values, 'b--')
+plt.ylabel('Battery level')
+plt.title('Battery level per slot')
+
+plt.subplot(212)
+plt.plot(list(range(1, 301)), plan_values, 'r--')
+plt.xlabel('Slots')
+plt.ylabel('Plans')
+plt.title('Plans per slot')
 plt.show()
