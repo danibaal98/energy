@@ -1,10 +1,16 @@
 #!/usr/bin/python3
 
 import csv
+import argparse
 import matplotlib.pyplot as plt
 from datetime import datetime
 
-path = "results/initial_assignment-2.csv"
+parser = argparse.ArgumentParser(description='Choose file to plot')
+parser.add_argument("-f", "--file", required=True, help='File to plot')
+
+args = parser.parse_args()
+
+path = args.file
 file = open(path, newline='')
 reader = csv.reader(file)
 
