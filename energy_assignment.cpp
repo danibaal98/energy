@@ -2,12 +2,12 @@
 #include <iostream>
 #include <cmath>
 
-int MATRIX_1_A[NUMBER_OF_TASKS_1_A][TUPLA] = {{2, 5, 10}, {1, 5, 15}, {1, 5, 8}};
-int MATRIX_1_B[NUMBER_OF_TASKS_1_B][TUPLA] = {{1, 10, 3}, {1, 10, 5}, {1, 10, 5}, {1, 10, 7}};
-int MATRIX_1_C[NUMBER_OF_TASKS_1_C][TUPLA] = {{5, 15, 10}};
-int MATRIX_1_D[NUMBER_OF_TASKS_1_D][TUPLA] = {{2, 20, 3}, {4, 20, 4}};
-int MATRIX_1_E[NUMBER_OF_TASKS_1_E][TUPLA] = {{20, 30, 10}};
-int MATRIX_1_PLAN_EMERGENCIA[NUMBER_OF_TASKS_PLAN_EMERGENCIA][TUPLA] = {{26, 30, 2}};
+int MATRIX_1_A[NUMBER_OF_TASKS_1_A][TUPLA] = {{1, 2, 3}, {1, 2, 4}, {1, 2, 2}};
+int MATRIX_1_B[NUMBER_OF_TASKS_1_B][TUPLA] = {{3, 5, 2}, {1, 3, 3}, {1, 3, 3}, {1, 3, 5}};
+int MATRIX_1_C[NUMBER_OF_TASKS_1_C][TUPLA] = {{7, 10, 10}};
+int MATRIX_1_D[NUMBER_OF_TASKS_1_D][TUPLA] = {{8, 15, 10}, {10, 15, 12}};
+int MATRIX_1_E[NUMBER_OF_TASKS_1_E][TUPLA] = {{15, 20, 10}};
+int MATRIX_1_PLAN_EMERGENCIA[NUMBER_OF_TASKS_PLAN_EMERGENCIA][TUPLA] = {{18, 20, 2}};                                                                                      
 
 // definition of quality levels
 float QoS[NUMBER_OF_PLANS_1] = {100, 87.5, 75, 62.5, 50, 70}; //QoS in percentage
@@ -44,6 +44,8 @@ assignmentClass::assignmentClass(void)
     // ddMMyyhhmmss[3] = 0;
     // ddMMyyhhmmss[4] = 0;
     // ddMMyyhhmmss[5] = 0;
+	for (int i = 0; i < NUMBER_OF_PLANS_1; i++)
+		std::cout << "El plan " << i << " tiene un coste de " << cost_of_plan[i] << std::endl;
 }
 
 int* assignmentClass::assign_plan(int month)
@@ -66,13 +68,10 @@ int* assignmentClass::assign_plan(int month)
 	r1 = look_for_slot(SUNRISE_SLOT);
 	r2 = look_for_slot(SUNSET_SLOT);
 	x = rand() % (r2 - r1 + 1) + r1;
-	std::cout << "X: " << x << std::endl;
 
     for (int i = 0; i < SLOTS; i++)
         assignments[i] = plans[0];
 	
-	std::cout << "assign el mes es " << ddMMyyhhmmss[1] << std::endl;
-
     compute_cost_assignment(plans[0], cost_of_plan, ddMMyyhhmmss, battery_at_slots, &hour, 1, ddMMyyhhmmss[1] - 1);
 
     int optimal = 0, admisible = 0, n = NUMBER_OF_PLANS_1;
@@ -378,7 +377,6 @@ void assignmentClass::recompute_battery_level(int plan, int *assignments, double
 	float P = STD_HOURS[month] / K;
 	char filename_assignment[256], filename_repotimization[256];
 	FILE *fs, *fr;
-	std::cout << "RE el mes es " << month << std::endl;
 	// debe estar la hora a 0!!
 	int new_date[6] = {1, month + 1, 2012, 0, 0, 0};
 	EP = (D[month] * (EFFICIENCY / 100) * S) / Vld; //energy produced in the hour i IN Amperes
@@ -386,6 +384,7 @@ void assignmentClass::recompute_battery_level(int plan, int *assignments, double
 
 	if ((hour >= MIN_HOUR[month]) && (hour < MAX_HOUR[month]))
 	{
+		std::cout << "Dentro mes " << month << std::endl;
 		ep_hour = (-1 * (hour - H)) * (hour - H) * (EP / (4 * STD_HOURS[month])) + EP;
 		if (optimization)
 			ep_slot = (ep_hour + (ep_hour * COEFFICIENT)) / (SLOTS / 24);
@@ -395,6 +394,7 @@ void assignmentClass::recompute_battery_level(int plan, int *assignments, double
 	}
 	else
 	{
+		std::cout << "Dentro 2 mes " << month << std::endl;
 		ep_slot = 0;
 		ep_slot_remaining = 0;
 	}
@@ -446,7 +446,6 @@ void assignmentClass::recompute_battery_level(int plan, int *assignments, double
 			// register data to file
 			if (optimization)
 			{
-				std::cout << i << std::endl;
 				fprintf(fr, "%d,", i);
 				fprintf(fr, "%f,", ep_slot);
 				if (ep_slot > consumption)
@@ -462,7 +461,10 @@ void assignmentClass::recompute_battery_level(int plan, int *assignments, double
 		fprintf(fs, "%f,", QoS[assignments[i - 1]]);
 		fprintf(fs, "%f,", battery_at_slots[i]);
 		fprintf(fs, "%f,", consumption);
-		fprintf(fs, "%f\n", ep_slot);
+		if ((new_date[3] >= MIN_HOUR[month]) && (new_date[3] < MAX_HOUR[month]))
+			fprintf(fs, "%f\n", ep_slot);
+		else
+			fprintf(fs, "%f\n", 0.0);
 
 		
 		get_time_from_seconds(TIME_SLOTS, new_date);
