@@ -28,8 +28,7 @@ double battery_at_slots[SLOTS + 1];
  
 assignmentClass::assignmentClass(void)
 {
-    //battery_at_slots[0] = CAPACITY - 500;
-	battery_at_slots[0] = 2000;
+    battery_at_slots[0] = CAPACITY - 500;
 
     cost_of_plan[0] = compute_cost_scheduling_plan(MATRIX_1_A, NUMBER_OF_TASKS_1_A);
     cost_of_plan[1] = compute_cost_scheduling_plan(MATRIX_1_B, NUMBER_OF_TASKS_1_B);
@@ -37,20 +36,14 @@ assignmentClass::assignmentClass(void)
     cost_of_plan[3] = compute_cost_scheduling_plan(MATRIX_1_D, NUMBER_OF_TASKS_1_D);
     cost_of_plan[4] = compute_cost_scheduling_plan(MATRIX_1_E, NUMBER_OF_TASKS_1_E);
     cost_of_plan[5] = compute_cost_scheduling_plan(MATRIX_1_PLAN_EMERGENCIA, NUMBER_OF_TASKS_PLAN_EMERGENCIA);
-
-    // ddMMyyhhmmss[0] = 1;
-    // ddMMyyhhmmss[1] = 1;
-    // ddMMyyhhmmss[2] = 2012;
-    // ddMMyyhhmmss[3] = 0;
-    // ddMMyyhhmmss[4] = 0;
-    // ddMMyyhhmmss[5] = 0;
-	for (int i = 0; i < NUMBER_OF_PLANS_1; i++)
+	
+    for (int i = 0; i < NUMBER_OF_PLANS_1; i++)
 		std::cout << "El plan " << i << " tiene un coste de " << cost_of_plan[i] << std::endl;
 }
 
 int* assignmentClass::assign_plan(int month)
 {
-	ddMMyyhhmmss[0] = 1;
+    ddMMyyhhmmss[0] = 1;
     ddMMyyhhmmss[1] = month;
     ddMMyyhhmmss[2] = 2012;
     ddMMyyhhmmss[3] = 0;
@@ -58,16 +51,14 @@ int* assignmentClass::assign_plan(int month)
     ddMMyyhhmmss[5] = 0;
 	
     int hour = 0;
-	int x, r1, r2;
+    int x, r1, r2;
     compute_efficiency(QoS, cost_of_plan, vector_efficiency, NUMBER_OF_PLANS_1);
     order_plans_by_efficiency(vector_efficiency, plans, NUMBER_OF_PLANS_1);
-	std::cout << "Antes mes " << ddMMyyhhmmss[1] << std::endl;
     get_time_from_seconds(0, ddMMyyhhmmss);
 
-	//if (ddMMyyhhmmss[1] == 0) ddMMyyhhmmss[1] = 12;
-	r1 = look_for_slot(SUNRISE_SLOT);
-	r2 = look_for_slot(SUNSET_SLOT);
-	x = rand() % (r2 - r1 + 1) + r1;
+    r1 = look_for_slot(SUNRISE_SLOT);
+    r2 = look_for_slot(SUNSET_SLOT);
+    x = rand() % (r2 - r1 + 1) + r1;
 
     for (int i = 0; i < SLOTS; i++)
         assignments[i] = plans[0];
@@ -92,7 +83,7 @@ int* assignmentClass::assign_plan(int month)
                 optimal = 1;
                 break;
             }
-			std::cout << "Hago upgrade" << std::endl;
+	    std::cout << "Hago upgrade" << std::endl;
             upgrade(plans[0], assignments, battery_at_slots, cost_of_plan, QoS, ddMMyyhhmmss[1] - 1);
         }
         else 
@@ -103,18 +94,18 @@ int* assignmentClass::assign_plan(int month)
                 admisible = 1;
                 break;
             }
-			std::cout << "Hago downgrade" << std::endl;
+	    std::cout << "Hago downgrade" << std::endl;
             downgrade(plans[0], assignments, battery_at_slots, cost_of_plan, QoS, ddMMyyhhmmss[1] - 1);
         }
     }
 
-	compute_qos_assignment(assignments, QoS, ddMMyyhhmmss[1]);
+    compute_qos_assignment(assignments, QoS, ddMMyyhhmmss[1]);
 
-	compute_efficiency(QoS, cost_of_plan, vector_efficiency, NUMBER_OF_PLANS_1);
-	order_plans_by_efficiency(vector_efficiency, plans, NUMBER_OF_PLANS_1);
+    compute_efficiency(QoS, cost_of_plan, vector_efficiency, NUMBER_OF_PLANS_1);
+    order_plans_by_efficiency(vector_efficiency, plans, NUMBER_OF_PLANS_1);
 
-	if (reoptimization(assignments, x, battery_at_slots, ddMMyyhhmmss[1] - 1, cost_of_plan, QoS, plans) == -1)
-		std::cout << "Not admissible solution" << std::endl;
+    if (reoptimization(assignments, x, battery_at_slots, ddMMyyhhmmss[1] - 1, cost_of_plan, QoS, plans) == -1)
+	std::cout << "Not admissible solution" << std::endl;
 	
     return assignments;
 }
@@ -222,7 +213,6 @@ int assignmentClass::remove_plan_quality(int plan, float *vector_efficiency, int
     {
         if (QoS[plans[i]] > QoS[plan])
         {
-            //print
             vector_efficiency_aux[j] = vector_efficiency[i];
             plans[j] = plans[i];
             j++;
@@ -243,7 +233,6 @@ int assignmentClass::remove_plan_cost(int plan, float *cost_of_plan, float *vect
     {
         if (cost_of_plan[i] < cost_of_plan[plan])
         {
-            //print
             vector_efficiency_aux[j] = vector_efficiency[i];
             plans[j] = i;
             j++;
@@ -298,8 +287,6 @@ void assignmentClass::compute_cost_assignment(int plan, float *cost_of_plan, int
 	sprintf(filename, "%s-%d.csv", "results/initial_assignment", month);
 	fs = fopen(filename, "w");
 	fprintf(fs, "slot,date,plan,QoS,battery,consumption,ep_slot\n");
-
-	std::cout << "El mes es " << month << std::endl;
 
 	//instantaneous energy production -->
 	//we compute the energy produced in every month and...
@@ -384,17 +371,16 @@ void assignmentClass::recompute_battery_level(int plan, int *assignments, double
 
 	if ((hour >= MIN_HOUR[month]) && (hour < MAX_HOUR[month]))
 	{
-		std::cout << "Dentro mes " << month << std::endl;
 		ep_hour = (-1 * (hour - H)) * (hour - H) * (EP / (4 * STD_HOURS[month])) + EP;
 		if (optimization)
 			ep_slot = (ep_hour + (ep_hour * COEFFICIENT)) / (SLOTS / 24);
 		else
 			ep_slot = ep_hour / (SLOTS / 24);
+		
 		ep_slot_remaining = ep_hour - (ep_slot * (SLOTS / 24));
 	}
 	else
 	{
-		std::cout << "Dentro 2 mes " << month << std::endl;
 		ep_slot = 0;
 		ep_slot_remaining = 0;
 	}
